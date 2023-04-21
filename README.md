@@ -13,11 +13,13 @@ __ATTENTION__ : la version utilisée ici de [omeka_s_tools](https://github.com/w
 * [Corriger les problèmes de visibilité (de contenus et médias)](./fix_visibility_issues.py) :
   * Basé sur l'utilisation [du module Group](https://github.com/Daniel-KM/Omeka-S-module-Group)
   * Part du principe que la visibilité d'un document n'est restreint qu'au niveau du média, pas du contenu (sauf si le contenu est en cours de traitement)
-  * 
+  * Deux traitements :
+    * l'attribution des groupes du contenu aux médias liés, le passage des médias en privé, la suppression des groupes du contenu, la passage du contenu en public
+    * la suppression des groupes du contenu, la passage du contenu en public
 
 # Informations importantes
 
-* Pour rajouter des groupes, à partir d'un GET __seulement indiquer les `o:id`__, pas les autres informations
+* Pour rajouter des groupes, à partir d'un GET __stringifier les `o:id`__
 
 ## Attacher un media à un item
 
