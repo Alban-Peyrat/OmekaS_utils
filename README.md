@@ -4,7 +4,7 @@ Utilise : https://github.com/wragge/omeka_s_tools
 Doc : https://wragge.github.io/omeka_s_tools/api.html
 
 __omekas_s_tools v0.3.0 ne permet pas de GET des ressources privées via `.get_resource_by_id()`.__
-Certains GET permettent de rajouter des `**kwargs`, 
+Certains GET permettent de rajouter des `**kwargs`, donc je n'ai pas touché à ceux-là.
 
 __ATTENTION__ : la version utilisée ici de [omeka_s_tools](https://github.com/wragge/omeka_s_tools) __est une fork__ permettant d'utiliser la fonction `.get_resource_by_id()` sur des ressources privées ([voir comment l'installer](#installer-la-fork-domeka_s_tools)).
 
