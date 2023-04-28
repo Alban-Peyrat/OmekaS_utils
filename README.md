@@ -17,6 +17,59 @@ __ATTENTION__ : la version utilisée ici de [omeka_s_tools](https://github.com/w
     * l'attribution des groupes du contenu aux médias liés, le passage des médias en privé, la suppression des groupes du contenu, la passage du contenu en public
     * la suppression des groupes du contenu, la passage du contenu en public
 
+## Upload medias to items via biblionumber
+
+_[Link to the file](./upload_medias_to_items_via_bibnb.py)_
+
+A script that uploads and attaches files to items in Omeka S.
+Uses Koha biblionumber to ensure that the targeted item is the correct one.
+If groups are provided, the uploaded media will be private with these groups assigned, otherwise the media will be public.
+
+### Omeka S modules used
+
+* [Group (module for Omeka S)](https://github.com/Daniel-KM/Omeka-S-module-Group)
+* [Biblionumber Support for Omeka S](https://github.com/biblibre/omeka-s-module-BiblionumberSupport)
+
+### Libraries used
+
+* Python Standard Library
+  * [json](https://docs.python.org/3/library/json.html)
+  * [logging](https://docs.python.org/3/library/logging.html)
+  * [os](https://docs.python.org/3/library/os.html)
+* External libraries
+  * [python-dotenv](https://pypi.org/project/python-dotenv/)
+  * [Omeka S Tools](https://pypi.org/project/omeka-s-tools/) __/!\\ If some of items are private, v0.3.0 won't find them.__ I use [my own fork](https://github.com/Alban-Peyrat/omeka_s_tools) (forces `.get_resource_by_id()` to provide the API key)
+  * [pandas](https://pypi.org/project/pandas/) (might need additional engine depending on the file format used)
+  * [Requests](https://pypi.org/project/requests/)
+* Internal files
+  * [logs.py](https://github.com/louxfaure/logs/tree/master) by Alexandre Faure (@louxfaure), with an additional parameter `encoding='utf-8'` to `RotatingFileHandler()`
+
+### Required environment variables
+
+_Paths (URL or folders) should not have trailing `/`_
+
+* `LOGS_FOLDER` : full path to the folder where the log file will be created
+* `OUTPUT_FOLDER` : folder where output files will be created
+* `OMEKA_URL` : URL of Omeka S
+* `OMEKA_KEY_IDENTITY` : Omeka S API key identity
+* `OMEKA_KEY_CREDENTIAL` : Omeka S API key credential
+
+### File with data
+
+* Must be readable by `pandas.read_excel()`
+* Three columns are required (with these names) :
+  * `file_name` : name of the file (with extension, not the full path)
+  * `bibnb` : Koha biblionumber of the record
+  * `id_item` : Omeka S ID of the item
+
+### Information that will be asked in the terminal
+
+* Full path to the file with data
+* Full path to the folder containing the files
+* Omeka-S groups ID to add
+  * Groups must be separated by a comma
+  * All groups that throws an exception on `int(group.strip())` are ignored
+
 # Informations importantes
 
 * Pour rajouter des groupes, à partir d'un GET __stringifier les `o:id`__

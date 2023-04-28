@@ -2,3 +2,5 @@ http_cache.sqlite
 __pycache__/
 settings.json
 files/
+.env
+logs.py
