@@ -5,17 +5,17 @@ import json
 import os
 import requests
 from omeka_s_tools.api import OmekaAPIClient
+import dotenv
 
 # Internal import
 
 # Loads settings
-with open('./settings.json', "r+", encoding="utf-8") as f:
-    settings = json.load(f)
+dotenv.load_dotenv()
 
-omeka_url = settings["OMEKA_URL"]
-key_identity = settings["KEY_IDENTITY"]
-key_credential = settings["KEY_CREDENTIAL"]
-output_path = settings["OUTPUT_FOLDER"]
+omeka_url = os.getenv("OMEKA_URL")
+key_identity = os.getenv("OMEKA_KEY_IDENTITY")
+key_credential = os.getenv("OMEKA_KEY_CREDENTIAL")
+output_path = os.getenv("OUTPUT_FOLDER")
 
 # Get the items ID list path
 items_list_file = input("Full path to the items ID list (\\n as a separator) :\n")
@@ -46,6 +46,7 @@ if job not in jobs:
     print("Job does not exist :", str(job))
     exit()
 elif job == "0":
+    print(f"Job : {jobs[job]}")
     # Creates the medias files
     out_media_get = open(output_path + "/media_get.json", mode="w", encoding="utf-8") # DON'T FORGET ME
     out_media_post = open(output_path + "/media_post.json", mode="w", encoding="utf-8") # DON'T FORGET ME
@@ -68,8 +69,10 @@ with open(output_path + "/item_get.json", mode="w", encoding="utf-8") as out_ite
     out_item_get.write("[")
     with open(output_path + "/item_post.json", mode="w", encoding="utf-8") as out_item_post:
         out_item_post.write("[")
+        print("Starting process")
         for id in items_id_list:
             id = id.strip()
+            print(id)
             # Gets the item
             try:
                 item = omeka.get_resource_by_id(id, "items")
@@ -130,3 +133,5 @@ if job == "0":
     out_media_get.close()
     finish_file(out_media_post)
     out_media_post.close()
+
+print("Job done")
