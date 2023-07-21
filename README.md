@@ -1,21 +1,85 @@
 # Omeka-S
 
-Utilise : https://github.com/wragge/omeka_s_tools
-Doc : https://wragge.github.io/omeka_s_tools/api.html
+* Uses : https://github.com/wragge/omeka_s_tools
+* Documentation : https://wragge.github.io/omeka_s_tools/api.html
+* __omekas_s_tools v0.3.0 does not allow `GET` on private resources using `.get_resource_by_id()`.__
+  * Some `GET` allow the use of `**kwargs`, so I did not edit them
+* __/!\\__ : the version used in this repository of [omeka_s_tools](https://github.com/wragge/omeka_s_tools) __is a fork__ allowing the use of `.get_resource_by_id()` on private resources ([see How to install](#installer-la-fork-domeka_s_tools)).
 
-__omekas_s_tools v0.3.0 ne permet pas de GET des ressources privées via `.get_resource_by_id()`.__
-Certains GET permettent de rajouter des `**kwargs`, donc je n'ai pas touché à ceux-là.
+# Scripts
 
-__ATTENTION__ : la version utilisée ici de [omeka_s_tools](https://github.com/wragge/omeka_s_tools) __est une fork__ permettant d'utiliser la fonction `.get_resource_by_id()` sur des ressources privées ([voir comment l'installer](#installer-la-fork-domeka_s_tools)).
+## Fix visibility issues
 
-# Fichiers
+_[Link to the file](./fix_visibility_issues.py)_
 
-* [Corriger les problèmes de visibilité (de contenus et médias)](./fix_visibility_issues.py) :
-  * Basé sur l'utilisation [du module Group](https://github.com/Daniel-KM/Omeka-S-module-Group)
-  * Part du principe que la visibilité d'un document n'est restreint qu'au niveau du média, pas du contenu (sauf si le contenu est en cours de traitement)
-  * Deux traitements :
-    * l'attribution des groupes du contenu aux médias liés, le passage des médias en privé, la suppression des groupes du contenu, la passage du contenu en public
-    * la suppression des groupes du contenu, la passage du contenu en public
+A script that updates visibilty properties of items and/or medias.
+Assumes that __items are always public__ (unless they are ebing processed, but the script should not be used on them) and only medias can have a restricted access.
+Current possible jobs :
+
+* __0__ : Spread item visibility to medias _(untested on items without groups)_
+  * Gets the item groups
+  * Forces the attached medias to be private
+  * Forces the attached medias to have the item's groups
+  * Forces the item groups to be empty
+  * Forces the item to be public
+* __1__ : Clean item visibility
+  * Forces the item groups to be empty
+  * Forces the item to be public
+* __9__ : Add groups to medias by item id
+  * Gets the attached media groups
+  * Forces the attached media to be private
+  * Adds the specified groups to the groups of the media
+
+The service name (used to name the log file) is : *Omeka-S_-_Fix_visibility_issues*
+
+### Omeka S modules used
+
+* [Group (module for Omeka S)](https://github.com/Daniel-KM/Omeka-S-module-Group)
+
+### Libraries used
+
+* Python Standard Library
+  * [json](https://docs.python.org/3/library/json.html)
+  * [logging](https://docs.python.org/3/library/logging.html)
+  * [os](https://docs.python.org/3/library/os.html)
+* External libraries
+  * [python-dotenv](https://pypi.org/project/python-dotenv/)
+  * [Omeka S Tools](https://pypi.org/project/omeka-s-tools/) __/!\\ If some of items are private, v0.3.0 won't find them.__ I use [my own fork](https://github.com/Alban-Peyrat/omeka_s_tools) (forces `.get_resource_by_id()` to provide the API key)
+  * [Requests](https://pypi.org/project/requests/)
+* Internal files
+  * [logs.py](https://github.com/louxfaure/logs/tree/master) by Alexandre Faure (@louxfaure), with an additional parameter `encoding='utf-8'` to `RotatingFileHandler()`
+  * [archires_coding_convention_resources.py] : a set of functions by ArchiRès, the file is provided in this repository
+
+### Required environment variables
+
+_Paths (URL or folders) should not have trailing `/`_
+
+* `LOGS_FOLDER` : full path to the folder where the log file will be created
+* `LOGGER_LEVEL` : optionnal, must be equel to `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. If omitted or not in this list, is set to `INFO`
+* `INPUT_FILE_FIX_VISIBILITY` : full path to the file with data : just a list of Omeka-S ids separated by newlines with no header
+* `OUTPUT_FOLDER` : folder where output files will be created
+* `OMEKA_URL` : URL of Omeka S
+* `OMEKA_KEY_IDENTITY` : Omeka S API key identity
+* `OMEKA_KEY_CREDENTIAL` : Omeka S API key credential
+
+### Information that will be asked in the terminal
+
+* Which job should be executed
+* Omeka-S groups ID to add
+  * Groups must be separated by a comma
+  * All groups that throws an exception on `int(group.strip())` are ignored
+
+### Output files
+
+* `errors.csv` : the file containing errors, with 4 columns :
+  * `index` : index of the row in the file with data
+  * `provided_omeka_id` : the ID provided in the file with data
+  * `resource` : if known, which Omeka-S ressource is concerned, if unknown : `unknown`
+  * `error` : the error message
+* `item_get.json` : a JSON containing an array of all the items that succesfully were retrieved through the `GET`
+* `item_post.json` : a JSON containing an array of all the items that were returned by successfull `POST`
+* `media_get.json` : a JSON containing an array of all the medias that succesfully were retrieved through the `GET`
+* `media_post.json` : a JSON containing an array of all the medias that were returned by successfull `POST`
 
 ## Upload medias to items via biblionumber
 
@@ -24,6 +88,8 @@ _[Link to the file](./upload_medias_to_items_via_bibnb.py)_
 A script that uploads and attaches files to items in Omeka S.
 Uses Koha biblionumber to ensure that the targeted item is the correct one.
 If groups are provided, the uploaded media will be private with these groups assigned, otherwise the media will be public.
+
+The service name (used to name the log file) is : *Omeka-S_-_Upload_medias_to_items_via_bibnb*
 
 ### Omeka S modules used
 
@@ -49,14 +115,18 @@ If groups are provided, the uploaded media will be private with these groups ass
 _Paths (URL or folders) should not have trailing `/`_
 
 * `LOGS_FOLDER` : full path to the folder where the log file will be created
+* `INPUT_FILE_MEDIA_LIST` : full path to the file with data
+* ~~`UPLOAD_FILES_FROM_FTP` : upload files from a FTP server ? `1` if yes, `0` or can be omitted if no~~
+* `FILES_FOLDER` : full path to the folder containing the files. Can be omitted if `UPLOAD_FILES_FROM_FTP` is set to `1`.
 * `OUTPUT_FOLDER` : folder where output files will be created
 * `OMEKA_URL` : URL of Omeka S
 * `OMEKA_KEY_IDENTITY` : Omeka S API key identity
 * `OMEKA_KEY_CREDENTIAL` : Omeka S API key credential
+* `LOGGER_LEVEL` : optionnal, must be equel to `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. If omitted or not in this list, is set to `INFO`
 
 ### File with data
 
-* Must be readable by `pandas.read_excel()`
+* Must be readable by `pandas.read_excel()`, unless the file format is `.csv` (separator must be `;`)
 * Three columns are required (with these names) :
   * `file_name` : name of the file (with extension, not the full path)
   * `bibnb` : Koha biblionumber of the record
@@ -64,8 +134,6 @@ _Paths (URL or folders) should not have trailing `/`_
 
 ### Information that will be asked in the terminal
 
-* Full path to the file with data
-* Full path to the folder containing the files
 * Omeka-S groups ID to add
   * Groups must be separated by a comma
   * All groups that throws an exception on `int(group.strip())` are ignored
