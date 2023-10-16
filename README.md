@@ -138,6 +138,54 @@ _Paths (URL or folders) should not have trailing `/`_
   * Groups must be separated by a comma
   * All groups that throws an exception on `int(group.strip())` are ignored
 
+## Normalize `importJob` log errors (from `EnsaKohaImport`)
+
+_[Link to the file](./normalize_importJob_log_errors.py)_
+
+A script that changes logs from this job to a spreadsheet with the school, to handle a big number of errors.
+
+### Omeka S modules used
+
+* [Biblionumber Support for Omeka S](https://github.com/biblibre/omeka-s-module-BiblionumberSupport)
+* Ensa Koha Import
+
+### Libraries used
+
+* Python Standard Library
+  * [os](https://docs.python.org/3/library/os.html)
+  * [csv](https://docs.python.org/3/library/csv.html)
+  * [enum](https://docs.python.org/3/library/enum.html)
+  * [re](https://docs.python.org/3/library/re.html)
+* External libraries
+  * [python-dotenv](https://pypi.org/project/python-dotenv/)
+  * [Omeka S Tools](https://pypi.org/project/omeka-s-tools/) __/!\\ If some of items are private, v0.3.0 won't find them.__ I use [my own fork](https://github.com/Alban-Peyrat/omeka_s_tools) (forces `.get_resource_by_id()` to provide the API key)
+  * [Requests](https://pypi.org/project/requests/)
+* Internal files
+  * [archires_coding_convention_resources.py] : a set of functions by ArchiRès, the file is provided in this repository
+
+### Required environment variables
+
+_Paths (URL or folders) should not have trailing `/`_
+
+* `NIJLE_INPUT_FILE` : full path to the file with data (a copy paste of the logs)
+* `OUTPUT_FOLDER` : folder where output file will be created
+* `OMEKA_URL` : URL of Omeka S
+* `OMEKA_KEY_IDENTITY` : Omeka S API key identity
+* `OMEKA_KEY_CREDENTIAL` : Omeka S API key credential
+
+### Output file
+
+A csv file containing 6 columns :
+
+  * `item_id` : Omeka-S item ID that triggererd the error
+  * `bibnb` : the bibnb of this item
+  * `error` : the error name
+  * `error_msg` : the error message. If an ID is provided inside, it will always be the beginning of the message
+  * `school` : the school that uplaoded the media (first dublin core provenance, for older items, might not be the expected value)
+  * `title` : the title of the item in Omeka-S
+
+If data could not be retrieved, will always write `err` instead of a value
+
 # Informations importantes
 
 * Pour rajouter des groupes, à partir d'un GET __stringifier les `o:id`__
