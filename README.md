@@ -162,6 +162,7 @@ A script that changes logs from this job to a spreadsheet with the school, to ha
   * [Requests](https://pypi.org/project/requests/)
 * Internal files
   * [archires_coding_convention_resources.py] : a set of functions by ArchiRès, the file is provided in this repository
+  * [Koha_API_PublicBiblio.py] : a set of function to use Koha public biblio API (2024 june 10 version)
 
 ### Required environment variables
 
@@ -172,6 +173,7 @@ _Paths (URL or folders) should not have trailing `/`_
 * `OMEKA_URL` : URL of Omeka S
 * `OMEKA_KEY_IDENTITY` : Omeka S API key identity
 * `OMEKA_KEY_CREDENTIAL` : Omeka S API key credential
+* `KOHA_URL` : URL of Koha
 
 ### Output file
 
@@ -183,6 +185,10 @@ A csv file containing 6 columns :
   * `error_msg` : the error message. If an ID is provided inside, it will always be the beginning of the message
   * `school` : the school that uplaoded the media (first dublin core provenance, for older items, might not be the expected value)
   * `title` : the title of the item in Omeka-S
+  * `media` : does the item contain medias in Omeka-S ?
+  * `item_sets` : all item sets label for which this item is a part of
+  * `koha_record` : does Koha still have a record for this biblionumber
+  * `koha_export_omeka` : value of the `099$x` in the Koha record (`no 099$x` if there is no `099$x`, emty if no Koha record was found)
 
 If data could not be retrieved, will always write `err` instead of a value
 
