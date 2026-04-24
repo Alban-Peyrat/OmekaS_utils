@@ -33,6 +33,15 @@ JOBS = {
         "post_media":False,
         "get_media_groups":False
         },
+    "2" : {
+        "name":"Make medias public",
+        "get_item":True,
+        "post_item":True,
+        "get_item_groups":False,
+        "get_media":True,
+        "post_media":True,
+        "get_media_groups":False
+        },
     "9" : {
         "name":"Add groups to medias by item id",
         "get_item":True,
@@ -98,15 +107,15 @@ print(f"Job : {JOBS[job]['name']}")
 
 # If necessary, asks for the groups that will be added
 omeka_groups = []
+NEW_GROUPS_ID = []
 if job == "9":
     omeka_groups = input("Omeka-S group ID to add (coma separated) : \n")
-NEW_GROUPS_ID = []
-for group in omeka_groups.split(","):
-    try:
-        group = int(group.strip())
-    except ValueError:
-        continue
-    NEW_GROUPS_ID.append({"o:id":str(group)})
+    for group in omeka_groups.split(","):
+        try:
+            group = int(group.strip())
+        except ValueError:
+            continue
+        NEW_GROUPS_ID.append({"o:id":str(group)})
 
 # Erase trailing slashes from OUTPUT_FOLDER and LOG_PATH
 OUTPUT_FOLDER = accr.erase_trailing_slash(OUTPUT_FOLDER)
@@ -224,12 +233,17 @@ for index, id in enumerate(OMEKA_ID_LIST):
                 media["o-module-group:group"] = item_groups
             elif job == "9":
                 media["o-module-group:group"] += NEW_GROUPS_ID
+            elif job == "2":
+                media["o-module-group:group"] = []
             # Stringifies groups o:id to prevent error 500
             for group in media["o-module-group:group"]:
                 group["o:id"] = str(group["o:id"])
             # Chose visibility depending on the presence of groups
             if len(media["o-module-group:group"]) > 0:
                 media["o:is_public"] = False
+            # Force public on job making medias public
+            if job == "2":
+                media["o:is_public"] = True
 
         # If needed, posts the media
         if JOBS[job]["post_media"]:
@@ -251,7 +265,7 @@ for index, id in enumerate(OMEKA_ID_LIST):
 
     if item:
         # Edits the item visibility depending on jobs
-        if job in ["0", "1"]:
+        if job in ["0", "1", "2"]:
             item["o-module-group:group"] = []
         # Stringifies groups o:id to prevent error 500
         for group in item["o-module-group:group"]:
@@ -259,6 +273,9 @@ for index, id in enumerate(OMEKA_ID_LIST):
         # Chose visibility depending on the presence of groups
         if len(item["o-module-group:group"]) > 0:
             item["o:is_public"] = False
+        # Force public on job making medias public
+        if job == "2":
+            item["o:is_public"] = True
 
     # If needed, posts the item
     if JOBS[job]["post_item"]:

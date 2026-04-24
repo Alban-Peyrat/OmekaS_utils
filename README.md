@@ -25,6 +25,9 @@ Current possible jobs :
 * __1__ : Clean item visibility
   * Forces the item groups to be empty
   * Forces the item to be public
+* __2__ : Make medias public
+  * Forces the item & medias to be public
+  * Removes the groups on the item & medias
 * __9__ : Add groups to medias by item id
   * Gets the attached media groups
   * Forces the attached media to be private
